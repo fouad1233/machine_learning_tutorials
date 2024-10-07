@@ -19,3 +19,7 @@ def LinearRegression(x : np.array , y : np.array):
     w0 = y_mean - (w1 * x_mean)
 
     return w0, w1
+
+def mean_squared_error(y_true, y_pred):
+    return np.mean((y_true - y_pred)**2)
+
