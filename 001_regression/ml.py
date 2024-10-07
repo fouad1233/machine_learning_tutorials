@@ -1,22 +1,21 @@
 import numpy as np  
 import matplotlib.pyplot as plt
 
-def LinearRegression(x : np.array , y : np.array):
-    # Calculate the mean of x and y
+def LinearRegression(x : np.array , r : np.array):
+    # Calculate the mean of x and r
     x_mean = np.mean(x)
-    y_mean = np.mean(y)
+    r_mean = np.mean(r)
     
     N = len(x)
 
-    # Calculate the terms needed for the numator and denominator of beta
-    numerator = np.sum(x * y) - N * x_mean * y_mean
+    numerator = np.sum(x * r) - N * x_mean * r_mean
     denominator = np.sum(x * x) - N * (x_mean**2)
 
-    # Calculate beta
+    # Calculate w1
     w1 = numerator / denominator
 
-    # Calculate alpha
-    w0 = y_mean - (w1 * x_mean)
+    # Calculate w0
+    w0 = r_mean - (w1 * x_mean)
 
     return w0, w1
 
