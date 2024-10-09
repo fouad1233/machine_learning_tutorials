@@ -1,7 +1,7 @@
 import numpy as np  
 import matplotlib.pyplot as plt
 
-def LinearRegression(x : np.array , r : np.array):
+def LinearRegression(x : np.ndarray , r : np.ndarray):
     # Calculate the mean of x and r
     x_mean = np.mean(x)
     r_mean = np.mean(r)
@@ -18,6 +18,12 @@ def LinearRegression(x : np.array , r : np.array):
     w0 = r_mean - (w1 * x_mean)
 
     return w0, w1
+def regression(x : np.ndarray , r : np.ndarray, degree : int):
+    X = np.array([x**i for i in range(degree )]).T
+    #print(X)
+    w = np.linalg.inv(X.T @ (X))@ X.T @ r
+    return w
+    
 
 def mean_squared_error(y_true, y_pred):
     return np.mean((y_true - y_pred)**2)
