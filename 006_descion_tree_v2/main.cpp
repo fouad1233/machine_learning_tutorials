@@ -173,6 +173,94 @@ public:
 
 
 
+#include <iostream>
+#include <Eigen/Dense>
+#include <vector>
+#include <cmath>
+#include <fstream>
+#include "cnpy.h"
+#include "DecisionTree.h"
+
+using namespace Eigen;
+using namespace std;
+
+// Helper function to convert Eigen matrices to vector of vector format
+std::vector<std::vector<double>> eigenToStdVector(const MatrixXd& matrix) {
+    std::vector<std::vector<double>> vec(matrix.rows(), std::vector<double>(matrix.cols()));
+    for (int i = 0; i < matrix.rows(); ++i) {
+        for (int j = 0; j < matrix.cols(); ++j) {
+            vec[i][j] = matrix(i, j);
+        }
+    }
+    return vec;
+}
+
+// Function to read labels as vector
+std::vector<int> loadNpyLabels(const std::string& filename) {
+    cnpy::NpyArray arr = cnpy::npy_load(filename);
+    double* loaded_data = arr.data<double>();
+    std::vector<int> labels(arr.shape[0]);
+
+    for (size_t i = 0; i < arr.shape[0]; ++i) {
+        labels[i] = static_cast<int>(loaded_data[i]);
+    }
+
+    return labels;
+}
+
+// Function to read data as Eigen matrix
+MatrixXd loadNpyData(const std::string& filename) {
+    cnpy::NpyArray arr = cnpy::npy_load(filename);
+    double* loaded_data = arr.data<double>();
+    int rows = arr.shape[0];
+    int cols = arr.shape[1];
+    MatrixXd matrix(rows, cols);
+
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            matrix(i, j) = loaded_data[i * cols + j];
+        }
+    }
+
+    return matrix;
+}
+
+// Calculate metrics
+double accuracyScore(const std::vector<int>& y_true, const std::vector<int>& y_pred) {
+    int correct = 0;
+    for (size_t i = 0; i < y_true.size(); ++i) {
+        if (y_true[i] == y_pred[i]) {
+            correct++;
+        }
+    }
+    return static_cast<double>(correct) / y_true.size();
+}
+
+int main() {
+    // Load data
+    MatrixXd X_train = loadNpyData("data/x_train.npy");
+    std::vector<int> y_train = loadNpyLabels("data/y_train.npy");
+    MatrixXd X_test = loadNpyData("data/x_test.npy");
+    std::vector<int> y_test = loadNpyLabels("data/y_test.npy");
+
+    // Convert data from Eigen to standard vector format
+    std::vector<std::vector<double>> X_train_std = eigenToStdVector(X_train);
+    std::vector<std::vector<double>> X_test_std = eigenToStdVector(X_test);
+
+    // Initialize and train the decision tree classifier
+    DecisionTree clf(20); // Set max_depth to 20
+    clf.fit(X_train_std, y_train);
+
+    // Make predictions
+    std::vector<int> y_pred = clf.predict(X_test_std);
+
+    // Calculate and display accuracy
+    double accuracy = accuracyScore(y_test, y_pred);
+    std::cout << "Accuracy: " << accuracy << std::endl;
+
+    return 0;
+}
+
 int main() {
     DecisionTree dt(3);
     vector<vector<double>> X = {{2.5}, {1.0}, {3.0}, {1.5}};
